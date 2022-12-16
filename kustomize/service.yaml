@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: app-transaction
+spec:
+  type: ClusterIP
+  selector:
+    app: service-transaction
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5005
+    name: http
