@@ -3,6 +3,6 @@ const router = express.Router()
 
 const { getTransactionById } = require('../controllers/transaction.controller')
 
-router.get('/getTransactionById/:accountId', getTransactionById)
+router.get('/getTransactionById/:invoiceId', getTransactionById)
 
 module.exports = router
