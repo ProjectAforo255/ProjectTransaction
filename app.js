@@ -58,8 +58,10 @@ async function init_kafka_consumer(){
         await consumer.run({
             autoCommit: false,
             eachMessage: async ({topic, partition, message})=>{
-    
+
+                
                 var jsonObj = JSON.parse(message.value.toString())
+                console.log('mensaje de pago - ', jsonObj);
                 var amountNew = 0;
                 const invoiceId = jsonObj.invoiceId;
                 const amount = jsonObj.amount;
@@ -72,7 +74,10 @@ async function init_kafka_consumer(){
                 }
 
                 MongoClient.connect(process.env.DB_MONGO_URI, function (err, db) {
-                    if (err) throw err
+                    if (err){
+                        console.log('Error connect mongodb', err);
+                        throw err;
+                    }
 
                     db.db(process.env.DB_MONGO_DATABASE_TRANSACTION).collection("transaction")
                         .insertOne({id_invoice: invoiceId, amount : amount, date: date})
