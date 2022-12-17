@@ -50,32 +50,17 @@ async function init_kafka_consumer(){
         const kafka = new Kafka({
             clientId: 'pay-client',
             brokers: [process.env.KAFKA_SERVER],
-            logLevel: logLevel.ERROR
+            logLevel: logLevel.ERROR,
         });
     
         const consumer = kafka.consumer({
-            groupId: 'pay-subcription', 
+            groupId: 'pay-subcription-transaction', 
             allowAutoTopicCreation: true,
-            heartbeatInterval : 6000,
-            
-            retry: (err)=>{
-                console.log("Error retry", err);
-            }
         });
         await consumer.connect();
         await consumer.subscribe({topic: 'pay-topic', fromBeginning: true });
         await consumer.run({
             autoCommit: false,
-            eachBatch: async ({ batch, resolveOffset, heartbeat, isRunning, isStale }) => {
-                console.log('eachBatch, isRinning => ' ,isRunning())
-                for (let message of batch.messages) {
-                    console.log('Message => ', message.value.toString())
-                    if (!isRunning() || isStale()) break
-                    await processMessage(message)
-                    resolveOffset(message.offset)
-                    await heartbeat()
-                }
-            },
             eachMessage: async ({topic, partition, message})=>{
                 
                 var jsonObj = JSON.parse(message.value.toString())
