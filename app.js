@@ -57,8 +57,15 @@ async function init_kafka_consumer(){
         await consumer.subscribe({topic: 'pay-topic', fromBeginning: true });
         await consumer.run({
             autoCommit: false,
+            eachBatch: async ({ batch, resolveOffset, heartbeat, isRunning, isStale }) => {
+                for (let message of batch.messages) {
+                    if (!isRunning() || isStale()) break
+                    await processMessage(message)
+                    resolveOffset(message.offset)
+                    await heartbeat()
+                }
+            },
             eachMessage: async ({topic, partition, message})=>{
-
                 
                 var jsonObj = JSON.parse(message.value.toString())
                 console.log('mensaje de pago - ', jsonObj);
